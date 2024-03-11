@@ -63,6 +63,7 @@ $RECYCLE.BIN/
 *.userosscache
 *.suo
 *.sln.docstates
+*.vs 
 
 # Mono Auto Generated Files
 mono_crash.*
@@ -130,3 +131,5 @@ $RECYCLE.BIN/
 .idea/
 *.sln.iml
 *.iml
+
+.vs

@@ -4,6 +4,7 @@ using DishesAPI.Entities;
 using DishesAPI.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace DishesAPI.Handlers
 {
@@ -12,6 +13,7 @@ namespace DishesAPI.Handlers
         public static async Task<Ok<IEnumerable<DishDTO>>> GetDishesAsync(DishesDbContext dishesDbContext, IMapper mapper, ILogger<DishDTO> logger, string? name) {
 
             logger.LogInformation("Getting the dishes.");
+            // logger.LogInformation($"{identity.Name}");
             var dishes = await dishesDbContext.Dishes
                 .Where(d => string.IsNullOrEmpty(name) || d.Name.Contains(name)).ToListAsync();
             return TypedResults.Ok(mapper.Map<IEnumerable<DishDTO>>(dishes));
@@ -46,18 +48,25 @@ namespace DishesAPI.Handlers
             }
 
         public static async Task<CreatedAtRoute<DishDTO>> CreateDishAsync(DishForCreationDTO dishForCreationDTO, DishesDbContext dishesDbContext,
-                    IMapper mapper) {
-
-            Dish newDish = mapper.Map<Dish>(dishForCreationDTO);
+                    IMapper mapper)
+        {
+            var newDish = mapper.Map<Dish>(dishForCreationDTO);
             dishesDbContext.Add(newDish);
             await dishesDbContext.SaveChangesAsync();
-            DishDTO dishToReturn = mapper.Map<DishDTO>(newDish);
+            var dishToReturn = mapper.Map<DishDTO>(newDish);
             return TypedResults.CreatedAtRoute(dishToReturn, "GetDishByGuid", new { dishId = newDish.Id });
-
-            //// Note: That the new object at the end is the parameter passed into the get method 
-            //string? newDishLink = linkGenerator.GetUriByName(httpContext, "GetDishByGuid", new { dishId = newDish.Id });        
-            //return TypedResults.Created(newDishLink, dishToReturn);
         }
+
+        //public static async Task<IResult> CreateDishAsync(DishForCreationDTO dishForCreationDTO, DishesDbContext dishesDbContext,
+        //            IMapper mapper) {
+
+        //   Dish newDish = mapper.Map<Dish>(dishForCreationDTO);
+        //    dishesDbContext.Add(newDish);
+        //    await dishesDbContext.SaveChangesAsync();
+        //    // DishDTO dishToReturn = mapper.Map<DishDTO>(newDish);
+        //    return Results.CreatedAtRoute("GetDishByGuidsdacasdcascasc", new { yurgranny = 1 });
+        //    //return Results.CreatedAtRoute("GetDishByGuid", new { dishId = newDish.Id });
+        //}
 
         public static async Task<Results<NotFound, NoContent>> UpdateDishAsync(
             Guid dishId,
